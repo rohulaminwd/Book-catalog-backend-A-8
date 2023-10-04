@@ -1,88 +1,20 @@
-import { Prisma, User } from '@prisma/client';
-import { paginationHelpers } from '../../../helpers/paginationHelper';
-import { IGenericResponse } from '../../../interfaces/common';
-import { IPaginationOptions } from '../../../interfaces/pagination';
+import { User } from '@prisma/client';
+import httpStatus from 'http-status';
+import { Secret } from 'jsonwebtoken';
+import config from '../../../config';
+import ApiError from '../../../errors/ApiError';
+import { jwtHelpers } from '../../../helpers/jwtHelpers';
 import prisma from '../../../shared/prisma';
-import {
-  studentRelationalFields,
-  studentRelationalFieldsMapper,
-  studentSearchableFields,
-} from './user.constants';
-import { IStudentFilterRequest } from './user.interface';
 
-const insertIntoDB = async (data: User): Promise<User> => {
-  const result = await prisma.user.create({
-    data,
-  });
-  return result;
-};
-
-const getAllFromDB = async (
-  filters: IStudentFilterRequest,
-  options: IPaginationOptions
-): Promise<IGenericResponse<User[]>> => {
-  const { limit, page, skip } = paginationHelpers.calculatePagination(options);
-  const { searchTerm, ...filterData } = filters;
-
-  const andConditions = [];
-
-  if (searchTerm) {
-    andConditions.push({
-      OR: studentSearchableFields.map(field => ({
-        [field]: {
-          contains: searchTerm,
-          mode: 'insensitive',
-        },
-      })),
-    });
-  }
-
-  if (Object.keys(filterData).length > 0) {
-    andConditions.push({
-      AND: Object.keys(filterData).map(key => {
-        if (studentRelationalFields.includes(key)) {
-          return {
-            [studentRelationalFieldsMapper[key]]: {
-              id: (filterData as any)[key],
-            },
-          };
-        } else {
-          return {
-            [key]: {
-              equals: (filterData as any)[key],
-            },
-          };
-        }
-      }),
-    });
-  }
-
-  const whereConditions: Prisma.UserWhereInput =
-    andConditions.length > 0 ? { AND: andConditions } : {};
-
+const getAllFromDB = async (): Promise<User[]> => {
   const result = await prisma.user.findMany({
-    where: whereConditions,
-    skip,
-    take: limit,
-    orderBy:
-      options.sortBy && options.sortOrder
-        ? { [options.sortBy]: options.sortOrder }
-        : {
-            createdAt: 'desc',
-          },
-  });
-  const total = await prisma.user.count({
-    where: whereConditions,
+    include: {
+      reviewRatings: true,
+      orders: true,
+    },
   });
 
-  return {
-    meta: {
-      total,
-      page,
-      limit,
-    },
-    data: result,
-  };
+  return result;
 };
 
 const getByIdFromDB = async (id: string): Promise<User | null> => {
@@ -90,8 +22,37 @@ const getByIdFromDB = async (id: string): Promise<User | null> => {
     where: {
       id,
     },
+    include: {
+      reviewRatings: true,
+      orders: true,
+    },
   });
   return result;
+};
+
+const getMyProfile = async (token: string): Promise<User | null | string> => {
+  if (!token) {
+    throw new ApiError(httpStatus.UNAUTHORIZED, 'You not authorized');
+  }
+  let verifyUser = null;
+  try {
+    verifyUser = jwtHelpers.verifyToken(token, config.jwt.secret as Secret);
+  } catch (error) {
+    throw new ApiError(httpStatus.FORBIDDEN, 'Invalid token');
+  }
+
+  const id = verifyUser?.userId;
+
+  const myProfile = await prisma.user.findUnique({
+    where: {
+      id,
+    },
+  });
+  if (!myProfile) {
+    return 'Profile Not Found';
+  } else {
+    return myProfile;
+  }
 };
 
 const updateIntoDB = async (
@@ -103,6 +64,10 @@ const updateIntoDB = async (
       id,
     },
     data: payload,
+    include: {
+      reviewRatings: true,
+      orders: true,
+    },
   });
   return result;
 };
@@ -112,13 +77,17 @@ const deleteFromDB = async (id: string): Promise<User> => {
     where: {
       id,
     },
+    include: {
+      reviewRatings: true,
+      orders: true,
+    },
   });
   return result;
 };
 export const UserService = {
-  insertIntoDB,
   getAllFromDB,
   getByIdFromDB,
   updateIntoDB,
   deleteFromDB,
+  getMyProfile,
 };

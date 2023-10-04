@@ -9,26 +9,15 @@ const router = express.Router();
 
 router.get('/', UserController.getAllFromDB);
 
-router.get('/:id', UserController.getByIdFromDB);
-
-router.post(
-  '/signup',
-  //   auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
-  //   validateRequest(UserValidation.create),
-  UserController.insertIntoDB
-);
+router.get('/:id', auth(ENUM_USER_ROLE.ADMIN), UserController.getByIdFromDB);
 
 router.patch(
   '/:id',
-  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
+  auth(ENUM_USER_ROLE.ADMIN),
   validateRequest(UserValidation.update),
   UserController.updateIntoDB
 );
 
-router.delete(
-  '/:id',
-  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
-  UserController.deleteFromDB
-);
+router.delete('/:id', auth(ENUM_USER_ROLE.ADMIN), UserController.deleteFromDB);
 
 export const userRoutes = router;

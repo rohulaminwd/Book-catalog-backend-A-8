@@ -5,9 +5,6 @@ const create = z.object({
     name: z.string({
       required_error: 'name is required',
     }),
-    lastName: z.string({
-      required_error: 'Last name is required',
-    }),
     password: z.string({
       required_error: 'password is required',
     }),
@@ -28,18 +25,12 @@ const create = z.object({
 
 const update = z.object({
   body: z.object({
-    studentId: z.string().optional(),
-    firstName: z.string().optional(),
-    lastName: z.string().optional(),
-    middleName: z.string().optional(),
+    name: z.string().optional(),
     profileImage: z.string().optional(),
     email: z.string().optional(),
     contactNo: z.string().optional(),
-    gender: z.string().optional(),
-    bloodGroup: z.string().optional(),
-    academicSemesterId: z.string().optional(),
-    academicDepartmentId: z.string().optional(),
-    academicFacultyId: z.string().optional(),
+    role: z.string().optional(),
+    password: z.string().optional(),
   }),
 });
 

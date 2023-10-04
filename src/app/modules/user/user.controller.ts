@@ -1,31 +1,17 @@
 import { Request, Response } from 'express';
 import httpStatus from 'http-status';
 import catchAsync from '../../../shared/catchAsync';
-import pick from '../../../shared/pick';
 import sendResponse from '../../../shared/sendResponse';
-import { studentFilterableFields } from './user.constants';
+
 import { UserService } from './user.service';
 
-const insertIntoDB = catchAsync(async (req: Request, res: Response) => {
-  const result = await UserService.insertIntoDB(req.body);
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: 'Student created successfully',
-    data: result,
-  });
-});
-
 const getAllFromDB = catchAsync(async (req: Request, res: Response) => {
-  const filters = pick(req.query, studentFilterableFields);
-  const options = pick(req.query, ['limit', 'page', 'sortBy', 'sortOrder']);
-  const result = await UserService.getAllFromDB(filters, options);
+  const result = await UserService.getAllFromDB();
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'Students fetched successfully',
-    meta: result.meta,
-    data: result.data,
+    message: 'User fetched successfully',
+    data: result,
   });
 });
 
@@ -35,7 +21,19 @@ const getByIdFromDB = catchAsync(async (req: Request, res: Response) => {
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'Student fetched successfully',
+    message: 'User getched successfully',
+    data: result,
+  });
+});
+
+const getMyProfile = catchAsync(async (req: Request, res: Response) => {
+  const token: string | undefined = req.headers.authorization;
+  const result = await UserService.getMyProfile(token || '');
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'Get My profile successfully',
     data: result,
   });
 });
@@ -47,7 +45,7 @@ const updateIntoDB = catchAsync(async (req: Request, res: Response) => {
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'Student updated successfully',
+    message: 'User updated successfully',
     data: result,
   });
 });
@@ -58,15 +56,15 @@ const deleteFromDB = catchAsync(async (req: Request, res: Response) => {
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'Student deleted successfully',
+    message: 'User deleted successfully',
     data: result,
   });
 });
 
 export const UserController = {
-  insertIntoDB,
   getAllFromDB,
   getByIdFromDB,
   updateIntoDB,
   deleteFromDB,
+  getMyProfile,
 };
