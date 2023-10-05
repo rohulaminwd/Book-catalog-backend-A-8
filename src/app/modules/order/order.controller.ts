@@ -10,7 +10,7 @@ const createOrder = catchAsync(async (req: Request, res: Response) => {
   const decodedToken = jwt.decode(accessToken, { complete: true }) as {
     payload: JwtPayload;
   } | null;
-  const id = decodedToken?.payload?.id as string;
+  const id = decodedToken?.payload?.userId as string;
   const role = decodedToken?.payload?.role as string;
 
   const result = await OrderService.createOrder(id, role, req.body);
@@ -28,13 +28,9 @@ const getAllOrders = catchAsync(async (req: Request, res: Response) => {
   const decodedToken = jwt.decode(accessToken, { complete: true }) as {
     payload: JwtPayload;
   } | null;
-  // console.log('access', accessToken);
-  // console.log('decoded', decodedToken);
 
-  const id = decodedToken?.payload?.id as string;
+  const id = decodedToken?.payload?.userId as string;
   const role = decodedToken?.payload?.role as string;
-  // console.log('id:', id);
-  // console.log('role:', role);
 
   const result = await OrderService.getAllOrders(id, role);
   // console.log('result', result);
@@ -52,7 +48,7 @@ const getSingleOrder = catchAsync(async (req: Request, res: Response) => {
   const decodedToken = jwt.decode(accessToken, { complete: true }) as {
     payload: JwtPayload;
   } | null;
-  const userId = decodedToken?.payload?.id as string;
+  const userId = decodedToken?.payload?.userId as string;
   const role = decodedToken?.payload?.role as string;
   const orderId = req.params.orderId;
 

@@ -1,10 +1,8 @@
-import { ReviewAndRating } from '@prisma/client';
+import { ReviewRating } from '@prisma/client';
 import prisma from '../../../shared/prisma';
 
-const createReview = async (
-  payload: ReviewAndRating
-): Promise<ReviewAndRating> => {
-  const result = await prisma.reviewAndRating.create({
+const createReview = async (payload: ReviewRating): Promise<ReviewRating> => {
+  const result = await prisma.reviewRating.create({
     data: payload,
     include: {
       user: true,
@@ -14,8 +12,8 @@ const createReview = async (
   return result;
 };
 
-const getReviewsFromDB = async (): Promise<Partial<ReviewAndRating>[]> => {
-  const result = await prisma.reviewAndRating.findMany({
+const getReviewsFromDB = async (): Promise<Partial<ReviewRating>[]> => {
+  const result = await prisma.reviewRating.findMany({
     include: {
       user: true,
       book: true,
@@ -26,8 +24,8 @@ const getReviewsFromDB = async (): Promise<Partial<ReviewAndRating>[]> => {
 
 const getSingleReview = async (
   id: string
-): Promise<Partial<ReviewAndRating | null>> => {
-  const result = await prisma.reviewAndRating.findFirst({
+): Promise<Partial<ReviewRating | null>> => {
+  const result = await prisma.reviewRating.findFirst({
     where: {
       id,
     },
@@ -41,9 +39,9 @@ const getSingleReview = async (
 
 const updateReviewDataToDB = async (
   id: string,
-  payload: Partial<ReviewAndRating>
-): Promise<Partial<ReviewAndRating | null>> => {
-  const result = await prisma.reviewAndRating.update({
+  payload: Partial<ReviewRating>
+): Promise<Partial<ReviewRating | null>> => {
+  const result = await prisma.reviewRating.update({
     where: {
       id,
     },
@@ -58,8 +56,8 @@ const updateReviewDataToDB = async (
 
 const deleteReviewFromDB = async (
   id: string
-): Promise<Partial<ReviewAndRating | null>> => {
-  const result = await prisma.reviewAndRating.delete({
+): Promise<Partial<ReviewRating | null>> => {
+  const result = await prisma.reviewRating.delete({
     where: {
       id,
     },

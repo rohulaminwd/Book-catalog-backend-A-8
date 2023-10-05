@@ -41,13 +41,6 @@ const getAllOrders = async (id: string, role: string) => {
 
   if (role === UserRole.admin) {
     result = await prisma.order.findMany({
-      // where: {
-      //   userId: id,
-      // },
-      // include: {
-      //   orderedBooks: true,
-      // },
-
       include: {
         user: true,
         orderedBooks: {
@@ -62,13 +55,6 @@ const getAllOrders = async (id: string, role: string) => {
 
   if (role === UserRole.customer) {
     result = await prisma.order.findMany({
-      // where: {
-      //   userId: id,
-      // },
-      // include: {
-      //   orderedBooks: true,
-      // },
-
       include: {
         user: true,
         orderedBooks: {

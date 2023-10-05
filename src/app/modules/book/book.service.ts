@@ -74,7 +74,7 @@ const getAllBooks = async (
     skip,
     include: {
       category: true,
-      reviewAndRatings: true,
+      reviewRatings: true,
     },
     take: size,
     orderBy:
@@ -84,6 +84,7 @@ const getAllBooks = async (
   });
 
   const total = await prisma.book.count();
+  // const totalPage = total / skip;
   return {
     meta: {
       total,
@@ -101,7 +102,7 @@ const getBookById = async (id: string): Promise<Book | null> => {
     },
     include: {
       category: true,
-      reviewAndRatings: true,
+      reviewRatings: true,
     },
   });
 
@@ -119,7 +120,7 @@ const getBookByCategoryId = async (id: string): Promise<Book[] | null> => {
     },
     include: {
       category: true,
-      reviewAndRatings: true,
+      reviewRatings: true,
     },
   });
 
@@ -149,7 +150,7 @@ const updateBook = async (
     data,
     include: {
       category: true,
-      reviewAndRatings: true,
+      reviewRatings: true,
     },
   });
 
@@ -171,7 +172,7 @@ const deleteBook = async (id: string): Promise<Book | null> => {
     },
     include: {
       category: true,
-      reviewAndRatings: true,
+      reviewRatings: true,
     },
   });
 
