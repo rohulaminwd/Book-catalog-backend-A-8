@@ -12,65 +12,63 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UserController = void 0;
+exports.ReviewController = void 0;
 const http_status_1 = __importDefault(require("http-status"));
 const catchAsync_1 = __importDefault(require("../../../shared/catchAsync"));
 const sendResponse_1 = __importDefault(require("../../../shared/sendResponse"));
-const user_service_1 = require("./user.service");
-const getAllFromDB = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield user_service_1.UserService.getAllFromDB();
+const review_service_1 = require("./review.service");
+const createReview = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield review_service_1.ReviewService.createReview(req.body);
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.OK,
         success: true,
-        message: 'User fetched successfully',
+        message: 'Review Created Successfully',
         data: result,
     });
 }));
-const getByIdFromDB = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const getReviewsFromDB = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield review_service_1.ReviewService.getReviewsFromDB();
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: 'All Reviews Data Fetched Successfully',
+        data: result,
+    });
+}));
+const getSingleReview = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
-    const result = yield user_service_1.UserService.getByIdFromDB(id);
+    const result = yield review_service_1.ReviewService.getSingleReview(id);
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.OK,
         success: true,
-        message: 'User getched successfully',
+        message: 'Single Review Data Fetched Successfully',
         data: result,
     });
 }));
-const getMyProfile = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const token = req.headers.authorization;
-    const result = yield user_service_1.UserService.getMyProfile(token || '');
-    (0, sendResponse_1.default)(res, {
-        success: true,
-        statusCode: http_status_1.default.OK,
-        message: 'Get My profile successfully',
-        data: result,
-    });
-}));
-const updateIntoDB = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const updateReviewDataToDB = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
-    const payload = req.body;
-    const result = yield user_service_1.UserService.updateIntoDB(id, payload);
+    const result = yield review_service_1.ReviewService.updateReviewDataToDB(id, req.body);
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.OK,
         success: true,
-        message: 'User updated successfully',
+        message: 'Review Updated Successfully',
         data: result,
     });
 }));
-const deleteFromDB = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const deleteReviewFromDB = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
-    const result = yield user_service_1.UserService.deleteFromDB(id);
+    const result = yield review_service_1.ReviewService.deleteReviewFromDB(id);
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.OK,
         success: true,
-        message: 'User deleted successfully',
+        message: 'Review Deleted Successfully',
         data: result,
     });
 }));
-exports.UserController = {
-    getAllFromDB,
-    getByIdFromDB,
-    updateIntoDB,
-    deleteFromDB,
-    getMyProfile,
+exports.ReviewController = {
+    createReview,
+    getReviewsFromDB,
+    getSingleReview,
+    updateReviewDataToDB,
+    deleteReviewFromDB,
 };

@@ -8,95 +8,60 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __rest = (this && this.__rest) || function (s, e) {
-    var t = {};
-    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
-        t[p] = s[p];
-    if (s != null && typeof Object.getOwnPropertySymbols === "function")
-        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
-            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
-                t[p[i]] = s[p[i]];
-        }
-    return t;
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserService = void 0;
-const paginationHelper_1 = require("../../../helpers/paginationHelper");
+const http_status_1 = __importDefault(require("http-status"));
+const config_1 = __importDefault(require("../../../config"));
+const ApiError_1 = __importDefault(require("../../../errors/ApiError"));
+const jwtHelpers_1 = require("../../../helpers/jwtHelpers");
 const prisma_1 = __importDefault(require("../../../shared/prisma"));
-const user_constants_1 = require("./user.constants");
-const insertIntoDB = (data) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield prisma_1.default.user.create({
-        data,
+const getAllFromDB = () => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield prisma_1.default.user.findMany({
+        include: {
+            reviewRatings: true,
+            orders: true,
+        },
     });
     return result;
-});
-const getAllFromDB = (filters, options) => __awaiter(void 0, void 0, void 0, function* () {
-    const { limit, page, skip } = paginationHelper_1.paginationHelpers.calculatePagination(options);
-    const { searchTerm } = filters, filterData = __rest(filters, ["searchTerm"]);
-    const andConditions = [];
-    if (searchTerm) {
-        andConditions.push({
-            OR: user_constants_1.studentSearchableFields.map(field => ({
-                [field]: {
-                    contains: searchTerm,
-                    mode: 'insensitive',
-                },
-            })),
-        });
-    }
-    if (Object.keys(filterData).length > 0) {
-        andConditions.push({
-            AND: Object.keys(filterData).map(key => {
-                if (user_constants_1.studentRelationalFields.includes(key)) {
-                    return {
-                        [user_constants_1.studentRelationalFieldsMapper[key]]: {
-                            id: filterData[key],
-                        },
-                    };
-                }
-                else {
-                    return {
-                        [key]: {
-                            equals: filterData[key],
-                        },
-                    };
-                }
-            }),
-        });
-    }
-    const whereConditions = andConditions.length > 0 ? { AND: andConditions } : {};
-    const result = yield prisma_1.default.user.findMany({
-        where: whereConditions,
-        skip,
-        take: limit,
-        orderBy: options.sortBy && options.sortOrder
-            ? { [options.sortBy]: options.sortOrder }
-            : {
-                createdAt: 'desc',
-            },
-    });
-    const total = yield prisma_1.default.user.count({
-        where: whereConditions,
-    });
-    return {
-        meta: {
-            total,
-            page,
-            limit,
-        },
-        data: result,
-    };
 });
 const getByIdFromDB = (id) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield prisma_1.default.user.findUnique({
         where: {
             id,
         },
+        include: {
+            reviewRatings: true,
+            orders: true,
+        },
     });
     return result;
+});
+const getMyProfile = (token) => __awaiter(void 0, void 0, void 0, function* () {
+    if (!token) {
+        throw new ApiError_1.default(http_status_1.default.UNAUTHORIZED, 'You not authorized');
+    }
+    let verifyUser = null;
+    try {
+        verifyUser = jwtHelpers_1.jwtHelpers.verifyToken(token, config_1.default.jwt.secret);
+    }
+    catch (error) {
+        throw new ApiError_1.default(http_status_1.default.FORBIDDEN, 'Invalid token');
+    }
+    const id = verifyUser === null || verifyUser === void 0 ? void 0 : verifyUser.userId;
+    const myProfile = yield prisma_1.default.user.findUnique({
+        where: {
+            id,
+        },
+    });
+    if (!myProfile) {
+        return 'Profile Not Found';
+    }
+    else {
+        return myProfile;
+    }
 });
 const updateIntoDB = (id, payload) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield prisma_1.default.user.update({
@@ -104,6 +69,10 @@ const updateIntoDB = (id, payload) => __awaiter(void 0, void 0, void 0, function
             id,
         },
         data: payload,
+        include: {
+            reviewRatings: true,
+            orders: true,
+        },
     });
     return result;
 });
@@ -112,13 +81,17 @@ const deleteFromDB = (id) => __awaiter(void 0, void 0, void 0, function* () {
         where: {
             id,
         },
+        include: {
+            reviewRatings: true,
+            orders: true,
+        },
     });
     return result;
 });
 exports.UserService = {
-    insertIntoDB,
     getAllFromDB,
     getByIdFromDB,
     updateIntoDB,
     deleteFromDB,
+    getMyProfile,
 };
