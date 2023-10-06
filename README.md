@@ -30,7 +30,7 @@ https://assignment-08-beta.vercel.app
 
 - https://assignment-08-beta.vercel.app/api/v1/books/create-book (POST)
 - https://assignment-08-beta.vercel.app/api/v1/books (GET)
-- http://localhost:5000/api/v1/books/fa474d9c-83f2-4d7a-a4af-26e039be1167/category (GET)
+- https://assignment-08-beta.vercel.app/api/v1/books/fa474d9c-83f2-4d7a-a4af-26e039be1167/category (GET)
 - https://assignment-08-beta.vercel.app/api/v1/books/e06be85a-cf9e-496e-831e-93acea58cda0 (GET)
 - https://assignment-08-beta.vercel.app/api/v1/books/7baba0a1-1c35-4af6-9c5e-6ad8050d648f (PATCH)
 - https://assignment-08-beta.vercel.app/api/v1/books/1017ff28-9c6f-49c5-95c8-ef5b6c782188 (DELETE)
